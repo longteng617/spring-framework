@@ -1,0 +1,6 @@
+如何解析自定义的标签？
+1. 自定义一个继承了 AbstractSingleBeanDefinitionParser 类的BeanDefinition解析器  重写 方法 getBeanClass doParse
+2. 自定义一个继承 NamespaceHandlerSupport 类的命名处理器  重写里面的方法 init 方法
+3. 定义 spring.schemas 文件 里面配置 xml文件校验格式的文件 如 dtd xsd
+4. 定义 spring.handlers 文件 里面配置 标签对应的命名处理器
+5. 定义 xsd 文件

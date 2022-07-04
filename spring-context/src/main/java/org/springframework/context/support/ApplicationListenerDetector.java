@@ -31,6 +31,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * 此类用来检测 bean 是否实现了 ApplicationListener 接口  两个应用
+ * 1. 实例化完成之后 如果bean 是单例的且 实现了 ApplicationListener 接口  则加入到多播器中
+ * 2. bean 销毁之前 如果bean 是一个 ApplicationListener 则从多播器中直接移除
  * {@code BeanPostProcessor} that detects beans which implement the {@code ApplicationListener}
  * interface. This catches beans that can't reliably be detected by {@code getBeanNamesForType}
  * and related operations which only work against top-level beans.

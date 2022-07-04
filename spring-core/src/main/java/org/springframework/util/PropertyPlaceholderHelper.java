@@ -126,7 +126,7 @@ public class PropertyPlaceholderHelper {
 
 	protected String parseStringValue(
 			String value, PlaceholderResolver placeholderResolver, @Nullable Set<String> visitedPlaceholders) {
-
+		// 判断值中是否有 ${
 		int startIndex = value.indexOf(this.placeholderPrefix);
 		if (startIndex == -1) {
 			return value;
@@ -134,6 +134,7 @@ public class PropertyPlaceholderHelper {
 
 		StringBuilder result = new StringBuilder(value);
 		while (startIndex != -1) {
+			// 查询最后一个 "}" 值可能是 application-${user${name}} 此时返回的是 最后一个 } 后面有递归
 			int endIndex = findPlaceholderEndIndex(result, startIndex);
 			if (endIndex != -1) {
 				String placeholder = result.substring(startIndex + this.placeholderPrefix.length(), endIndex);
@@ -146,8 +147,10 @@ public class PropertyPlaceholderHelper {
 							"Circular placeholder reference '" + originalPlaceholder + "' in property definitions");
 				}
 				// Recursive invocation, parsing placeholders contained in the placeholder key.
+				// 递归调用，解析占位符键中包含的占位符。
 				placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);
 				// Now obtain the value for the fully resolved key...
+				// 现在获取完全解析键的值... 例如 name 应该替换成什么值 从系统属性里获取对应的值
 				String propVal = placeholderResolver.resolvePlaceholder(placeholder);
 				if (propVal == null && this.valueSeparator != null) {
 					int separatorIndex = placeholder.indexOf(this.valueSeparator);

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id = "customer" class="org.springframework.debug.editor.Customer">
+		<property name="name" value="zhangsan"></property>
+		<property name="address" value="安徽省_亳州市_涡阳县"></property>
+	</bean>
+
+<!--	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">-->
+<!--		<property name="propertyEditorRegistrars">-->
+<!--			<list>-->
+<!--				<bean class="org.springframework.debug.editor.AddressEditorRegistrar"></bean>-->
+<!--			</list>-->
+<!--		</property>-->
+<!--	</bean>-->
+
+	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="org.springframework.debug.editor.Address">
+					<value>org.springframework.debug.editor.AddressEditor</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+</beans>

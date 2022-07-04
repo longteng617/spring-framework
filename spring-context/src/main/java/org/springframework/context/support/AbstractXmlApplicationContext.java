@@ -45,6 +45,7 @@ import org.springframework.lang.Nullable;
  */
 public abstract class AbstractXmlApplicationContext extends AbstractRefreshableConfigApplicationContext {
 
+	// 设置XML 的验证标志，默认是 true
 	private boolean validating = true;
 
 
@@ -72,6 +73,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 
 
 	/**
+	 * 我们可以看到，此方法将通过一个 XmlBeanDefinitionReader 实例来加载各个 Bean
 	 * Loads the bean definitions via an XmlBeanDefinitionReader.
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 	 * @see #initBeanDefinitionReader
@@ -80,16 +82,20 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	@Override
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
 		// Create a new XmlBeanDefinitionReader for the given BeanFactory.
+		// 给这个 BeanFactory 实例化一个 XmlBeanDefinitionReader
 		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
 
 		// Configure the bean definition reader with this context's
 		// resource loading environment.
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
 		beanDefinitionReader.setResourceLoader(this);
+		// 设置要用于解析的 SAX 实体解析器。
+		// ResourceEntityResolver 会设置 路径 META-INF/spring.schemas
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
+		// 初始化 BeanDefinitionReader，其实这个是提供给子类覆写的，暂时没有子类覆写 是否检验xml的验证默认是true
 		initBeanDefinitionReader(beanDefinitionReader);
 		loadBeanDefinitions(beanDefinitionReader);
 	}
@@ -119,6 +125,8 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #getResourcePatternResolver
 	 */
 	protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
+		// configResources 这个值一般都是空 只有当调用 下面的构造方法时才会有值，一般不会用到这个构造方法
+		//ClassPathXmlApplicationContext(String[] paths, Class<?> clazz, @Nullable ApplicationContext parent)
 		Resource[] configResources = getConfigResources();
 		if (configResources != null) {
 			reader.loadBeanDefinitions(configResources);

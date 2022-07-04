@@ -84,9 +84,11 @@ public class DelegatingEntityResolver implements EntityResolver {
 
 		if (systemId != null) {
 			if (systemId.endsWith(DTD_SUFFIX)) {
+				// BeansDtdResolver dtd 验证：默认直接截取systemId最后的xx.dtd,直接去当前路径下寻找
 				return this.dtdResolver.resolveEntity(publicId, systemId);
 			}
 			else if (systemId.endsWith(XSD_SUFFIX)) {
+				// PluggableSchemaResolver xsd 验证：默认到META-INF/Spring.schemas文件中找到systemId 所对应的XSD 文件并加载
 				return this.schemaResolver.resolveEntity(publicId, systemId);
 			}
 		}

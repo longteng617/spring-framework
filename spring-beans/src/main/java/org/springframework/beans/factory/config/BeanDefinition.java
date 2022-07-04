@@ -88,11 +88,13 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Set the name of the parent definition of this bean definition, if any.
 	 */
+	// 设置父 Bean，这里涉及到 bean 继承，不是 java 继承。
 	void setParentName(@Nullable String parentName);
 
 	/**
 	 * Return the name of the parent definition of this bean definition, if any.
 	 */
+	// 获取父 Bean
 	@Nullable
 	String getParentName();
 
@@ -104,6 +106,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #setFactoryBeanName
 	 * @see #setFactoryMethodName
 	 */
+	// 设置 Bean 的类名称
 	void setBeanClassName(@Nullable String beanClassName);
 
 	/**
@@ -118,6 +121,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #getFactoryBeanName()
 	 * @see #getFactoryMethodName()
 	 */
+	// 获取 Bean 的类名称
 	@Nullable
 	String getBeanClassName();
 
@@ -152,11 +156,14 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Set the names of the beans that this bean depends on being initialized.
 	 * The bean factory will guarantee that these beans get initialized first.
 	 */
+	// 设置该 Bean 依赖的所有的 Bean，注意，这里的依赖不是指属性依赖(如 @Autowire 标记的)，
+	// 是 depends-on="" 属性设置的值。
 	void setDependsOn(@Nullable String... dependsOn);
 
 	/**
 	 * Return the bean names that this bean depends on.
 	 */
+	// 返回该 Bean 的所有依赖
 	@Nullable
 	String[] getDependsOn();
 
@@ -167,11 +174,14 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * if the specified bean is not marked as an autowire candidate. As a consequence,
 	 * autowiring by name will nevertheless inject a bean if the name matches.
 	 */
+	// 设置该 Bean 是否可以注入到其他 Bean 中，只对根据类型注入有效，
+	// 如果根据名称注入，即使这边设置了 false，也是可以的
 	void setAutowireCandidate(boolean autowireCandidate);
 
 	/**
 	 * Return whether this bean is a candidate for getting autowired into some other bean.
 	 */
+	// 该 Bean 是否可以注入到其他 Bean 中
 	boolean isAutowireCandidate();
 
 	/**
@@ -179,11 +189,13 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>If this value is {@code true} for exactly one bean among multiple
 	 * matching candidates, it will serve as a tie-breaker.
 	 */
+	// 主要的。同一接口的多个实现，如果不指定名字的话，Spring 会优先选择设置 primary 为 true 的 bean
 	void setPrimary(boolean primary);
 
 	/**
 	 * Return whether this bean is a primary autowire candidate.
 	 */
+	// 是否是 primary 的
 	boolean isPrimary();
 
 	/**
@@ -191,11 +203,13 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * This the name of the bean to call the specified factory method on.
 	 * @see #setFactoryMethodName
 	 */
+	// 如果该 Bean 采用工厂方法生成，指定工厂名称。
 	void setFactoryBeanName(@Nullable String factoryBeanName);
 
 	/**
 	 * Return the factory bean name, if any.
 	 */
+	// 获取工厂名称
 	@Nullable
 	String getFactoryBeanName();
 
@@ -207,11 +221,13 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #setFactoryBeanName
 	 * @see #setBeanClassName
 	 */
+	// 指定工厂类中的 工厂方法名称
 	void setFactoryMethodName(@Nullable String factoryMethodName);
 
 	/**
 	 * Return a factory method, if any.
 	 */
+	// 获取工厂类中的 工厂方法名称
 	@Nullable
 	String getFactoryMethodName();
 
@@ -220,6 +236,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>The returned instance can be modified during bean factory post-processing.
 	 * @return the ConstructorArgumentValues object (never {@code null})
 	 */
+	// 构造器参数
 	ConstructorArgumentValues getConstructorArgumentValues();
 
 	/**
@@ -235,6 +252,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>The returned instance can be modified during bean factory post-processing.
 	 * @return the MutablePropertyValues object (never {@code null})
 	 */
+	// Bean 中的属性值
 	MutablePropertyValues getPropertyValues();
 
 	/**
@@ -323,6 +341,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * returned on all calls.
 	 * @see #SCOPE_SINGLETON
 	 */
+	// 是否 singleton
 	boolean isSingleton();
 
 	/**
@@ -331,6 +350,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @since 3.0
 	 * @see #SCOPE_PROTOTYPE
 	 */
+	// 是否 prototype
 	boolean isPrototype();
 
 	/**

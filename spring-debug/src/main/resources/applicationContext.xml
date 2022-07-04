@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:fync="http://www.fync.com/schema/user"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.fync.com/schema/user
+		http://www.fync.com/schema/user.xsd">
+
+	<fync:user id = "fync" username="zhangsan" email="www.fync.com" password="123456"></fync:user>
+
+	<bean id="person" class="org.springframework.debug.Person">
+		<property name="age" value="20"/>
+		<property name="name" value="张三"/>
+	</bean>
+
+
+</beans>

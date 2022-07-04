@@ -1,0 +1,24 @@
+如何扩展实现自定义的属性编辑器？
+1. 自定义一个实现了 PropertyEditorSupport 接口的编辑器  重写 方法 setAsText
+2. 自定义一个继承 PropertyEditorRegistrar 属性编辑器的注册器  重写里面的方法 registerCustomEditors
+3. 让 Spring 能够识别到对应的注册器 即 往 CustomEditorConfigurer 类中的 propertyEditorRegistrars 属性设置值
+    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="propertyEditorRegistrars">
+            <list>
+                <bean class="org.springframework.debug.editor.AddressEditorRegistrar"></bean>
+            </list>
+        </property>
+    </bean>
+
+    或
+
+
+    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="customEditors">
+            <map>
+                <entry key="org.springframework.debug.editor.Address">
+                    <value>org.springframework.debug.editor.AddressEditor</value>
+                </entry>
+            </map>
+        </property>
+    </bean>

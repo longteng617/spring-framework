@@ -28,6 +28,7 @@ import org.springframework.lang.Nullable;
  * @author Rossen Stoyanchev
  * @since 3.1
  * @see FlashMap
+ * FlashMap 管理器接口，负责重定向时，保存参数到临时存储中
  */
 public interface FlashMapManager {
 
@@ -41,6 +42,7 @@ public interface FlashMapManager {
 	 * @param request the current request
 	 * @param response the current response
 	 * @return a FlashMap matching the current request or {@code null}
+	 * 恢复参数，并将恢复过的和超时的参数从保存介质中删除
 	 */
 	@Nullable
 	FlashMap retrieveAndUpdate(HttpServletRequest request, HttpServletResponse response);
@@ -54,6 +56,7 @@ public interface FlashMapManager {
 	 * @param flashMap the FlashMap to save
 	 * @param request the current request
 	 * @param response the current response
+	 * 将参数保存起来
 	 */
 	void saveOutputFlashMap(FlashMap flashMap, HttpServletRequest request, HttpServletResponse response);
 
