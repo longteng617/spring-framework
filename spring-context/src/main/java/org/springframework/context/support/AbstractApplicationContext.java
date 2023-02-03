@@ -534,7 +534,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
-			// 创建并初始化 BeanFactory
+			// 创建容器 BeanFactory   DefaultListableBeanFactory
 			// 这步比较关键，这步完成后，配置文件就会解析成一个个 Bean 定义，注册到 BeanFactory 中，
 			// 当然，这里说的 Bean 还没有初始化，只是配置信息都提取出来了，
 			// 注册也只是将这些信息都保存到了注册中心(说到底核心是一个 beanName-> beanDefinition 的 map)
@@ -628,7 +628,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// 记录启动时间，
 		// 将 active 属性设置为 true，closed 属性设置为 false，它们都是 AtomicBoolean 类型
 		this.startupDate = System.currentTimeMillis();
+		// 设置容器的关闭标志位
 		this.closed.set(false);
+		// 设置容器的激活标志位
 		this.active.set(true);
 
 		if (logger.isDebugEnabled()) {
@@ -641,14 +643,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Initialize any placeholder property sources in the context environment.
+		// 给予子类覆盖  初始化属性资源
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
-		// 校验 xml 配置文件
+		// 创建并获取环境对象，校验需要的属性文件是否已经放入到环境中（系统属性、系统环境属性）
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...
+		// 判断刷新前的应用程序监听器集合是否为空，如果为空，则将监听器添加到此集合中
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
 		}

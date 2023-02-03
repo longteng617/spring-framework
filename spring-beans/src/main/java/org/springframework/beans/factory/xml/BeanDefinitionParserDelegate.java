@@ -417,7 +417,7 @@ public class BeanDefinitionParserDelegate {
 		// 解析 name 属性
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
-		// 分割 name 属性
+		// 如果bean有别名的话，进行分割 name 属性
 		List<String> aliases = new ArrayList<>();
 		// 将 name 属性的定义按照 ”逗号、分号、空格“ 切分，形成一个别名列表数组，
 		// 当然，如果你不定义的话，就是空的了
@@ -439,7 +439,7 @@ public class BeanDefinitionParserDelegate {
 		if (containingBean == null) {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
-		// 根据 <bean ...>...</bean> 中的配置创建 BeanDefinition，然后把配置中的信息都设置到实例中,
+		// 对bean 进行详细解析 根据 <bean ...>...</bean> 中的配置创建 BeanDefinition，然后把配置中的信息都设置到实例中,
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		// 到这里，整个 <bean /> 标签就算解析结束了，一个 BeanDefinition 就形成了。
 		if (beanDefinition != null) {

@@ -13,16 +13,16 @@ import org.springframework.debug.xsd.User;
 public class ProjectLoad {
 
 	public static void main(String[] args) {
-//		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext.xml");
+//		ApplicationContext applicationContext = new MyClassPathXmlApplicationContext("selfEditor-${user}.xml");
 //		Person person = applicationContext.getBean(Person.class);
 //		System.out.println(person);
 //
 //		User user = (User)applicationContext.getBean("fync");
 //		System.out.println(user.toString());
 
-		ApplicationContext ac = new ClassPathXmlApplicationContext("selfEditor.xml");
-		Customer customer = (Customer)ac.getBean("customer");
-		System.out.println(customer);
+		ApplicationContext ac = new ClassPathXmlApplicationContext("selfEditor-${user}.xml");
+//		Customer customer = (Customer)ac.getBean("customer");
+//		System.out.println(customer);
 
 	}
 }

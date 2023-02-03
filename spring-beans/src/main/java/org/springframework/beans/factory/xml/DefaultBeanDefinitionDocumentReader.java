@@ -180,7 +180,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	// default namespace 涉及到的就四个标签 <import />、<alias />、<bean /> 和 <beans />，
 	// 其他的属于 custom 的
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
-		// <1> 如果根节点使用默认命名空间，执行默认解析
+		// <1> 如果根节点使用默认命名空间（即beans），执行默认解析
 		if (delegate.isDefaultNamespace(root)) {
 			// 遍历子节点
 			NodeList nl = root.getChildNodes();
@@ -327,14 +327,15 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * and registering it with the registry.
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
-		// 将 <bean /> 节点中的信息提取出来，然后封装到一个 BeanDefinitionHolder 中，细节往下看
+		// 将 <bean /> 节点中的信息提取出来，，然后封装到一个 BeanDefinitionHolder 中，细节往下看
+		// 得到这个 BeanDefinitionHolder 就意味着 beanDefinition 是通过 BeanDefinitionParserDelegate 对xml元素的信息按照spring的bean规则进行解析得到的
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
 			// 如果有自定义属性的话，进行相应的解析
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.
-				// 注册Bean
+				// 注册Bean  向IOC容器注册解析得到的 BeanDefinition 的地方
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
 			catch (BeanDefinitionStoreException ex) {
@@ -342,7 +343,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						bdHolder.getBeanName() + "'", ele, ex);
 			}
 			// Send registration event.
-			// 注册完成后，发送事
+			// 注册完成后，发送消息
 			getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
 		}
 	}

@@ -394,9 +394,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			throws BeanDefinitionStoreException {
 
 		try {
-			// 获取 XML Document 实例
+			// 获取 XML Document 实例 解析过程是通过 DocumentLoader 完成的
+			// 从 String[] -> String -> Resource[] -> Resource -> InputStream 最终将 inputStream 读取成 Document 文档
 			Document doc = doLoadDocument(inputSource, resource);
-			// 根据 Document 实例，注册 Bean 信息
+			// 根据 Document 实例的节点信息解析成一个个 BeanDefinition 对象 并完成注册 Bean 信息
 			int count = registerBeanDefinitions(doc, resource);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Loaded " + count + " bean definitions from " + resource);
@@ -520,7 +521,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
-		// <1> 使用 DefaultBeanDefinitionDocumentReader 创建 BeanDefinitionDocumentReader 对象
+		// <1> 使用 DefaultBeanDefinitionDocumentReader 创建 BeanDefinitionDocumentReader 对象解析XML的 BeanDefinition
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		// 在实例化 BeanDefinitionReader 时候会将 BeanDefinitionRegister 传入，默认使用继承自 DefaultListableBeanFactory的子类
 		// <2> 获取已注册的 BeanDefinition 数量 从 beanDefinitionMap 中获取

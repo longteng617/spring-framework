@@ -87,6 +87,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 
 		// Configure the bean definition reader with this context's
 		// resource loading environment.
+		// 给 reader 设置环境变量
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
 		beanDefinitionReader.setResourceLoader(this);
 		// 设置要用于解析的 SAX 实体解析器。
@@ -127,10 +128,12 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
 		// configResources 这个值一般都是空 只有当调用 下面的构造方法时才会有值，一般不会用到这个构造方法
 		//ClassPathXmlApplicationContext(String[] paths, Class<?> clazz, @Nullable ApplicationContext parent)
+		// 以 Resource 的形式获得配置文件
 		Resource[] configResources = getConfigResources();
 		if (configResources != null) {
 			reader.loadBeanDefinitions(configResources);
 		}
+		// 以String 的方式获得配置文件位置
 		String[] configLocations = getConfigLocations();
 		if (configLocations != null) {
 			reader.loadBeanDefinitions(configLocations);
