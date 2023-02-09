@@ -106,12 +106,15 @@ public abstract class BeanDefinitionReaderUtils {
 			BeanDefinition definition, BeanDefinitionRegistry registry, boolean isInnerBean)
 			throws BeanDefinitionStoreException {
 
+		// 获取 bean 定义的类名
 		String generatedBeanName = definition.getBeanClassName();
 		if (generatedBeanName == null) {
 			if (definition.getParentName() != null) {
+				// 当 bean 定义名称不存在并且存在父类时的命名方式
 				generatedBeanName = definition.getParentName() + "$child";
 			}
 			else if (definition.getFactoryBeanName() != null) {
+				// 读取生成该 bean 的 factoryBean 名称做前缀
 				generatedBeanName = definition.getFactoryBeanName() + "$created";
 			}
 		}
@@ -122,10 +125,12 @@ public abstract class BeanDefinitionReaderUtils {
 
 		if (isInnerBean) {
 			// Inner bean: generate identity hashcode suffix.
+			// 作为内部类的时候 使用#分割和系统的唯一hash值作为后缀
 			return generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);
 		}
 
 		// Top-level bean: use plain class name with unique suffix if necessary.
+		// 定义 bean 使用普通类名加唯一后缀
 		return uniqueBeanName(generatedBeanName, registry);
 	}
 

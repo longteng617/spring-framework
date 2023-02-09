@@ -8,13 +8,13 @@
 		<property name="address" value="安徽省_亳州市_涡阳县"></property>
 	</bean>
 
-<!--	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">-->
-<!--		<property name="propertyEditorRegistrars">-->
-<!--			<list>-->
-<!--				<bean class="org.springframework.debug.editor.AddressEditorRegistrar"></bean>-->
-<!--			</list>-->
-<!--		</property>-->
-<!--	</bean>-->
+	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="propertyEditorRegistrars">
+			<list>
+				<bean class="org.springframework.debug.editor.AddressEditorRegistrar"></bean>
+			</list>
+		</property>
+	</bean>
 
 <!--	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">-->
 <!--		<property name="customEditors">-->

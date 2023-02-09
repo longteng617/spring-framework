@@ -20,7 +20,7 @@ public class ProjectLoad {
 //		User user = (User)applicationContext.getBean("fync");
 //		System.out.println(user.toString());
 
-		ApplicationContext ac = new ClassPathXmlApplicationContext("selfEditor-${user}.xml");
+		ApplicationContext ac = new ClassPathXmlApplicationContext("applicationContext.xml");
 //		Customer customer = (Customer)ac.getBean("customer");
 //		System.out.println(customer);
 

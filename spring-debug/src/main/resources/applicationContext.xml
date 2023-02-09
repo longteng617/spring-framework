@@ -14,5 +14,7 @@
 		<property name="name" value="张三"/>
 	</bean>
 
+<!--	<bean class="org.springframework.debug.bean.factory.post.processor.MyBeanFactoryPostProcessor"></bean>-->
+
 
 </beans>

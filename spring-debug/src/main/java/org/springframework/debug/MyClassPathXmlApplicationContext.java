@@ -5,6 +5,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.debug.bean.factory.post.processor.MyBeanFactoryPostProcessor;
 
 /**
  * @Author YangQinglong
@@ -29,6 +30,7 @@ public class MyClassPathXmlApplicationContext extends ClassPathXmlApplicationCon
 	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
 		beanFactory.setAllowBeanDefinitionOverriding(false);
 		beanFactory.setAllowCircularReferences(false);
+//		super.addBeanFactoryPostProcessor(new MyBeanFactoryPostProcessor());
 		super.customizeBeanFactory(beanFactory);
 	}
 }

@@ -28,6 +28,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 public class DefaultBeanNameGenerator implements BeanNameGenerator {
 
 	/**
+	 * DefaultBeanNameGenerator 实例常量 用于在 AbstractBeanDefinitionReader 类中属性 beanNameGenerator 的设置
 	 * A convenient constant for a default {@code DefaultBeanNameGenerator} instance,
 	 * as used for {@link AbstractBeanDefinitionReader} setup.
 	 * @since 5.2
@@ -35,6 +36,13 @@ public class DefaultBeanNameGenerator implements BeanNameGenerator {
 	public static final DefaultBeanNameGenerator INSTANCE = new DefaultBeanNameGenerator();
 
 
+	/**
+	 * 通过属性 BeanDefinitionReaderUtils 工具类的 generateBeanName 方法生成指定的 BeanDefinition 的 bean 名称
+	 * @param definition the bean definition to generate a name for
+	 * @param registry the bean definition registry that the given definition
+	 * is supposed to be registered with
+	 * @return
+	 */
 	@Override
 	public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
 		return BeanDefinitionReaderUtils.generateBeanName(definition, registry);

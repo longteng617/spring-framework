@@ -1,0 +1,10 @@
+扩展 beanFactoryPostProcessor
+
+1. 实现 BeanFactoryPostProcessor 接口
+2. xml 配置 bean引入 或者 在 customizeBeanFactory() 方法中 直接添加
+
+   xml
+     <bean class="org.springframework.debug.bean.factory.post.processor.MyBeanFactoryPostProcessor"></bean>
+
+   直接加
+      super.addBeanFactoryPostProcessor(new MyBeanFactoryPostProcessor());

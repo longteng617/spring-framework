@@ -64,12 +64,14 @@ import org.springframework.util.StringUtils;
 public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
 	/**
+	 * 用于扫描 （@Component @ComponentScan 注解） bean名称生成
 	 * A convenient constant for a default {@code AnnotationBeanNameGenerator} instance,
 	 * as used for component scanning purposes.
 	 * @since 5.2
 	 */
 	public static final AnnotationBeanNameGenerator INSTANCE = new AnnotationBeanNameGenerator();
 
+	// @Component 注解类常量
 	private static final String COMPONENT_ANNOTATION_CLASSNAME = "org.springframework.stereotype.Component";
 
 	private final Map<String, Set<String>> metaAnnotationTypesCache = new ConcurrentHashMap<>();
@@ -78,13 +80,16 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 	@Override
 	public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
 		if (definition instanceof AnnotatedBeanDefinition) {
+			// 通过注解的属性值获取bean 名称
 			String beanName = determineBeanNameFromAnnotation((AnnotatedBeanDefinition) definition);
 			if (StringUtils.hasText(beanName)) {
 				// Explicit bean name found.
+				// 显示的找到bean 名称
 				return beanName;
 			}
 		}
 		// Fallback: generate a unique default bean name.
+		// 如果注解未指定bean 名称  则生成一个唯一默认的 Bean 名称
 		return buildDefaultBeanName(definition, registry);
 	}
 

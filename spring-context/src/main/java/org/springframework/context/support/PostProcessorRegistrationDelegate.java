@@ -52,7 +52,17 @@ final class PostProcessorRegistrationDelegate {
 	private PostProcessorRegistrationDelegate() {
 	}
 
-
+	/**
+	 * 执行顺序：
+	 * 	外部集合(参数中的 beanFactoryPostProcessor)  --> 子(BeanDefinitionRegistryPostProcessor) --> (父 BeanFactoryPostProcessor)
+	 * 	Spring 中可能存在多个BFPP 因此有个优先级
+	 * 	PriorityOrdered --> Ordered --> 没有实现 PriorityOrdered 和 Ordered 的对象
+	 *
+	 * 	注：如果一个类 实现了 BeanDefinitionRegistryPostProcessor 可以先执行 postProcessBeanDefinitionRegistry 方法
+	 * 	他的 postProcessBeanFactory() 这个方法可以跟其他的 BeanFactoryPostProcessor 一起执行
+	 * @param beanFactory
+	 * @param beanFactoryPostProcessors
+	 */
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
@@ -337,6 +347,7 @@ final class PostProcessorRegistrationDelegate {
 			// 如果没有设置比较器  则使用默认的比较器
 			comparatorToUse = OrderComparator.INSTANCE;
 		}
+		// 使用比较器排序
 		postProcessors.sort(comparatorToUse);
 	}
 

@@ -50,8 +50,10 @@ import org.springframework.stereotype.Component;
  */
 abstract class ConfigurationClassUtils {
 
+	// 如果是被 @Configuration 注解修饰的类，那么将属性标注为 full
 	public static final String CONFIGURATION_CLASS_FULL = "full";
 
+	// 如果是被 非@Configuration 注解修饰的类，那么将属性标注为 lite
 	public static final String CONFIGURATION_CLASS_LITE = "lite";
 
 	public static final String CONFIGURATION_CLASS_ATTRIBUTE =
@@ -63,6 +65,7 @@ abstract class ConfigurationClassUtils {
 
 	private static final Log logger = LogFactory.getLog(ConfigurationClassUtils.class);
 
+	// 用于存储标注配置类的注解
 	private static final Set<String> candidateIndicators = new HashSet<>(8);
 
 	static {
@@ -74,6 +77,8 @@ abstract class ConfigurationClassUtils {
 
 
 	/**
+	 * 检查当前给定的 BeanDefinition 是否是配置类的候选者
+	 * 判断在嵌套的关系中是否包含配置类或者自动注册进去的  并做相应的标记
 	 * Check whether the given bean definition is a candidate for a configuration class
 	 * (or a nested component class declared within a configuration/component class,
 	 * to be auto-registered as well), and mark it accordingly.
@@ -84,32 +89,44 @@ abstract class ConfigurationClassUtils {
 	public static boolean checkConfigurationClassCandidate(
 			BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
 
+		// 获取当前 BeanDefinition 的元数据对象
 		String className = beanDef.getBeanClassName();
 		if (className == null || beanDef.getFactoryMethodName() != null) {
 			return false;
 		}
 
 		AnnotationMetadata metadata;
+		// 通过注解注入的 BeanDefinition 对象 都是 AnnotatedGenericBeanDefinition 实现了 AnnotatedBeanDefinition
+		// Spring 内部的 BeanDefinition 对象 是 RootBeanDefinition 实现了 AbstractBeanDefinition
+		// 此处主要是判断是否归属于 AnnotatedBeanDefinition
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
+			// 从当前bean 的定义信息中获取 元数据信息
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
 		}
+		// 判断是否是 Spring 中默认的 BeanDefinition
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
 			// Check already loaded Class if present...
 			// since we possibly can't even load the class file for this Class.
+			// 获取当前bean 对象的 Class 对象
 			Class<?> beanClass = ((AbstractBeanDefinition) beanDef).getBeanClass();
+			// 判断该类是否是指定类的子类
 			if (BeanFactoryPostProcessor.class.isAssignableFrom(beanClass) ||
 					BeanPostProcessor.class.isAssignableFrom(beanClass) ||
 					AopInfrastructureBean.class.isAssignableFrom(beanClass) ||
 					EventListenerFactory.class.isAssignableFrom(beanClass)) {
 				return false;
 			}
+			// 根据 beanClass 生成对应的 AnnotationMetadata 对象
 			metadata = AnnotationMetadata.introspect(beanClass);
 		}
+		// 如果上述两种情况都不满足
 		else {
 			try {
+				// 获取元数据读取器
 				MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(className);
+				// 通过元数据读取器获取注解元数据
 				metadata = metadataReader.getAnnotationMetadata();
 			}
 			catch (IOException ex) {
@@ -121,10 +138,13 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
+		// 判断当前的 BeanDefinition 是否存在 @Configuration 注解
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
+		// 如果包含 @Configuration 注解 同时包含 proxyBeanMethods 属性，那么设置configurationClass 为 full
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		// 如果包含 @Bean @Component @ComponentScan @Import @ImportResource 注解 那么设置configurationClass 为lite
 		else if (config != null || isConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -133,7 +153,9 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// It's a full or lite configuration candidate... Let's determine the order value, if any.
+		// 获取具体的执行顺序
 		Integer order = getOrder(metadata);
+		// 如果值不为空  则直接设置到具体的 BeanDefinition
 		if (order != null) {
 			beanDef.setAttribute(ORDER_ATTRIBUTE, order);
 		}

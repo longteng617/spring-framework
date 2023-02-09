@@ -272,23 +272,34 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+		// 遍历 basePackages
 		for (String basePackage : basePackages) {
+			// 扫描 basePackage 将符合要求的 Bean 定义全部找出来
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
+			// 遍历所有候选的 bean 的定义
 			for (BeanDefinition candidate : candidates) {
+				// 解析 @Scope 注解 包括ScopeName proxyMode
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
+				// 使用 beanName生成器来生成beanName
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				if (candidate instanceof AbstractBeanDefinition) {
+					// 处理beanDefinition 对象 例如 此Bean是否可以自动装配到其他的Bean
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					// 处理定义在目标类上的通用注解 包括 @Lazy @Primary @DependsOn @Role @Description
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				// 检查BeanName 是否已经被注册过 如果注册过  检查是否兼容
 				if (checkCandidate(beanName, candidate)) {
+					// 将当前遍历bean 的 bean 定义和 beanName 封装为 BeanDefinitionHolder
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
+					// 根据 proxyMode 的值 选择是否创建作用域代理
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
+					// 注册 BeanDefinition
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}
