@@ -253,19 +253,35 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		this.injectionMetadataCache.remove(beanName);
 	}
 
+	/**
+	 * 获取构造器集合
+	 * 	如果有多个 Autowired,required为true，不管有没有默认构造方法，会报异常
+	 * 	如果只有一个 Autowired,required 为 false，没有默认构造方法，会报警告
+	 * 	如果没有 Autowired 注解，定义两个及两个以上有参构造方法，没有无参构造方法，且不是通过xml文件进行加载，使用@Component进行加载的，会报错
+	 * 	其他情况都可以，但是以有 Autowired 的构造方法优先，然后才是默认构造方法
+	 *
+	 * @param beanClass the raw class of the bean (never {@code null})
+	 * @param beanName the name of the bean
+	 * @return
+	 * @throws BeanCreationException
+	 */
 	@Override
 	@Nullable
 	public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
 			throws BeanCreationException {
 
 		// Let's check for lookup methods here...
+		// 处理包含 @Lookup 注解的方法，如果集合中没有 beanName,则走一遍bean中的所有方法，过滤是否含有 lookup 方法
 		if (!this.lookupMethodsChecked.contains(beanName)) {
 			if (AnnotationUtils.isCandidateClass(beanClass, Lookup.class)) {
 				try {
 					Class<?> targetClass = beanClass;
 					do {
+						// 遍历当前类以及所有父类，找出 lookup 注解的方法进行处理
 						ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+							// 获取 method 上的 lookup 注解
 							Lookup lookup = method.getAnnotation(Lookup.class);
+							// 若存在此注解，将方法和注解中的内容构建 LookupOverride 对象，设置到 RootBeanDefinition 中
 							if (lookup != null) {
 								Assert.state(this.beanFactory != null, "No BeanFactory available");
 								LookupOverride override = new LookupOverride(method, lookup.value());
@@ -282,6 +298,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						});
 						targetClass = targetClass.getSuperclass();
 					}
+					// 遍历父类，直到Object
 					while (targetClass != null && targetClass != Object.class);
 
 				}
@@ -289,14 +306,18 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					throw new BeanCreationException(beanName, "Lookup method resolution failed", ex);
 				}
 			}
+			// 无论对象中是否含有 @Lookup 方法，过滤完成后都会放到集合中，证明此 bean 已经检查完 @Lookup 注解
 			this.lookupMethodsChecked.add(beanName);
 		}
 
 		// Quick check on the concurrent map first, with minimal locking.
+		// 从缓存中拿到构造函数，不存在的话就进入代码块中再拿一遍，还不存在的话就进行下面的逻辑
 		Constructor<?>[] candidateConstructors = this.candidateConstructorsCache.get(beanClass);
+		// 没找到再同步
 		if (candidateConstructors == null) {
 			// Fully synchronized resolution now...
 			synchronized (this.candidateConstructorsCache) {
+				// 再检查一遍，双重检测
 				candidateConstructors = this.candidateConstructorsCache.get(beanClass);
 				if (candidateConstructors == null) {
 					Constructor<?>[] rawCandidates;

@@ -43,10 +43,12 @@ import org.springframework.util.StringUtils;
  */
 public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
+	// FactoryMethod 的 ThreadLocal 对象
 	private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
 
 
 	/**
+	 * 返回当前现成所有的 FactoryMethod 变量值
 	 * Return the factory method currently being invoked or {@code null} if none.
 	 * <p>Allows factory method implementations to determine whether the current
 	 * caller is the container itself as opposed to user code.
@@ -57,26 +59,46 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	}
 
 
+	/**
+	 * 如果发现有方法重载的，需要使用Cglib来动态代理，如果没有就直接获取默认构造方法实例化
+	 * @param bd the bean definition
+	 * @param beanName the name of the bean when it is created in this context.
+	 * The name can be {@code null} if we are autowiring a bean which doesn't
+	 * belong to the factory.
+	 * @param owner the owning BeanFactory
+	 * @return
+	 */
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
+		// BeanDefinition 对象定义中，是否包含 MethodOverride 列表，spring中有两个标签参数会产生 MethodOverrides，分别是 lookup-method，replace-method
+		// 没有 MethodOverrides 对象，可以直接实例化
 		if (!bd.hasMethodOverrides()) {
+			// 实例化对象的构造方法
 			Constructor<?> constructorToUse;
+			// 锁定对象，使获得实例化构造方法线程安全
 			synchronized (bd.constructorArgumentLock) {
+				// 查看 beanDefinition 对象里是否含有构造器方法
 				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
+				// 如果没有
 				if (constructorToUse == null) {
+					// 从 beanDefinition 中获取 beanClass 属性
 					final Class<?> clazz = bd.getBeanClass();
+					// 如果要实例化的类是一个接口，直接抛出异常
 					if (clazz.isInterface()) {
 						throw new BeanInstantiationException(clazz, "Specified class is an interface");
 					}
 					try {
+						// 获取系统安全管理器
 						if (System.getSecurityManager() != null) {
 							constructorToUse = AccessController.doPrivileged(
 									(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
 						}
 						else {
+							// 获取默认的构造器
 							constructorToUse = clazz.getDeclaredConstructor();
 						}
+						// 获取构造器之后将构造器赋值给 bd 中的属性
 						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
 					}
 					catch (Throwable ex) {
@@ -84,10 +106,12 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					}
 				}
 			}
+			// 通过反射生成具体的实例化对象
 			return BeanUtils.instantiateClass(constructorToUse);
 		}
 		else {
 			// Must generate CGLIB subclass.
+			// 不行生成 CGLIB 子类
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
@@ -145,12 +169,16 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 				});
 			}
 			else {
+				// 通过反射工具类设置访问权限
 				ReflectionUtils.makeAccessible(factoryMethod);
 			}
 
+			// 获取原有的 Method 对象
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
+				// 设置当前的 Method
 				currentlyInvokedFactoryMethod.set(factoryMethod);
+				// 使用 factoryMethod 实例化对象
 				Object result = factoryMethod.invoke(factoryBean, args);
 				if (result == null) {
 					result = new NullBean();

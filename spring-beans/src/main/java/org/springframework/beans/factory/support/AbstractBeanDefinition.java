@@ -196,8 +196,13 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	private boolean enforceDestroyMethod = true;
 
+	// 是否是应用程序本身定义的而不是用户定义的，创建AOP的是值为true
 	private boolean synthetic = false;
 
+	/**
+	 * 定义这个bean 的应用，application:用户，infrastructure: 完全内部使用，与用户无关
+	 * support：某些负责配置的一部分
+	 */
 	private int role = BeanDefinition.ROLE_APPLICATION;
 
 	@Nullable
@@ -469,6 +474,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		if (className == null) {
 			return null;
 		}
+		// 获取当前bean 对应的Class 对象
 		Class<?> resolvedClass = ClassUtils.forName(className, classLoader);
 		this.beanClass = resolvedClass;
 		return resolvedClass;
@@ -1138,6 +1144,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @throws BeanDefinitionValidationException in case of validation failure
 	 */
 	protected void prepareMethodOverride(MethodOverride mo) throws BeanDefinitionValidationException {
+		// 获取对应类中对应方法的个数
 		int count = ClassUtils.getMethodCountForName(getBeanClass(), mo.getMethodName());
 		if (count == 0) {
 			throw new BeanDefinitionValidationException(

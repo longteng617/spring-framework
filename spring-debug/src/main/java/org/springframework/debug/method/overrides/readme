@@ -1,0 +1,19 @@
+假如spring想在一个单例对象中引用原型对象如何实现呢？
+
+spring默认的对象都是单例对象、默认放到一级缓存中，假如一个单例Bean想要引用原型Bean, 就需要使用lookup-method 、replace-method.
+
+源码跟踪：
+①通过跟踪代码逻辑：当前Bean的定义信息是否有methodOverrides，其实就是指的是Bean是否有lookup-method标签和replace-method标签。
+进入到prepareMethodOverride这个方法没有对这两个标签进行处理逻辑啊，这里就是做了一个标记。官方翻译[将重写标记为未重载，以避免arg类型检查的开销。]
+这里标记MethodOverride的overloaded的属性为false 方便Cglib方法拦截器MethodInterceptor去处理MethodOverride 。
+
+②这里为什么又提到Cglib呢 因为如果一个Bean有lookup-method 或replace-method，spring首先将这个Bean生成代理对象 放到一级缓存，这个代理对象设置了三个方法拦截器分别是NoOp、LookupOverrideMethodInterceptor、LookupOverrideMethodInterceptor
+
+③这里还要说明 比如这个代理对象 具体会执行那个方法拦截器呢？ 这里就要用到Cglib的过滤器(setCallbackFilter)了 这里是MethodOverrideCallbackFilter，通过accept方法返回的int下标，用于指定调用哪个拦截器进行拦截处理。
+这里下标取值的方法 就是用到①里面的标记MethodOverride的overloaded的属性为false逻辑。
+
+
+什么时候创建原型对象的？
+通过拦截器的方式每次需要的时候都去创建最新的对象，不会把原型对象存储起来。
+
+
