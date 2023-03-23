@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="person" class="org.springframework.debug.populateBean.Person" autowire="byName"></bean>
+	<bean id="person2" class="org.springframework.debug.populateBean.Person" autowire="byType"></bean>
+
+	<bean id="address" class="org.springframework.debug.populateBean.Address">
+		<property name="province" value="安徽省"></property>
+		<property name="city" value="亳州市"></property>
+		<property name="town" value="涡阳县"></property>
+	</bean>
+</beans>

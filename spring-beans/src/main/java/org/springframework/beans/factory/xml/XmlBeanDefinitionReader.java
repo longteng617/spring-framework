@@ -327,7 +327,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Loading XML bean definitions from " + encodedResource);
 		}
-		// 获取已经加载过的资源
+		// 获取已经加载过的资源  resourcesCurrentlyBeingLoaded 是 ThreadLocal 当前线程是否加载过该资源
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		// 将当前资源加入记录中。如果已存在，抛出异常
 		if (!currentResources.add(encodedResource)) {
@@ -395,7 +395,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 		try {
 			// 获取 XML Document 实例 解析过程是通过 DocumentLoader 完成的
-			// 从 String[] -> String -> Resource[] -> Resource -> InputStream 最终将 inputStream 读取成 Document 文档
+			// 从 String[] -> String -> Resource[] -> Resource -> InputStream -> InputSource 最终将 InputSource 读取成 Document 文档
 			Document doc = doLoadDocument(inputSource, resource);
 			// 根据 Document 实例的节点信息解析成一个个 BeanDefinition 对象 并完成注册 Bean 信息
 			int count = registerBeanDefinitions(doc, resource);
@@ -444,6 +444,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	}
 
 	/**
+	 * 是否需要对xml文件进行验证，并决定哪种格式，如果xsd，那么返回3，如果dtd，返回2
 	 * Determine the validation mode for the specified {@link Resource}.
 	 * If no explicit validation mode has been configured, then the validation
 	 * mode gets {@link #detectValidationMode detected} from the given resource.

@@ -648,7 +648,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
-		// 创建并获取环境对象，校验需要的属性文件是否已经放入到环境中（系统属性、系统环境属性）
+		// 创建并获取环境对象，校验需要的属性文件是否已经放入到环境中（系统属性、系统环境属性）;验证属性中是否有必须存在的属性
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...
@@ -1448,6 +1448,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	@Override
 	public Resource[] getResources(String locationPattern) throws IOException {
+		// resourcePatternResolver 这个我们已经在当前类的构造方法中已经设置过了（PathMatchingResourcePatternResolver），是ant风格表达式
+		// getResources方法，在里面对locations匹配，比如是否以classpath:开头，最终返回一个Resource[]数组。
 		return this.resourcePatternResolver.getResources(locationPattern);
 	}
 

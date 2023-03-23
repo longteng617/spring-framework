@@ -59,7 +59,9 @@ public class DelegatingEntityResolver implements EntityResolver {
 	 * (can be {@code null}) to use the default ClassLoader)
 	 */
 	public DelegatingEntityResolver(@Nullable ClassLoader classLoader) {
+		// 创建dtd解析器
 		this.dtdResolver = new BeansDtdResolver();
+		// 创建 xsd 解析器
 		// 当完成这行代码调用之后,神奇的发现一件事,schemaResolver 对象的 schemaMappings属性完成了赋值,但是查看代码后发现没有显示调用
 		// 原理是:在进行debug的时候,程序运行期间需要显示类的所有信息,所以idea会帮助我们调用toString()方法,只不过此过程我们没有识别到
 		this.schemaResolver = new PluggableSchemaResolver(classLoader);

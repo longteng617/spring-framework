@@ -100,9 +100,11 @@ public class InitDestroyAnnotationBeanPostProcessor
 
 	protected transient Log logger = LogFactory.getLog(getClass());
 
+	// CommonAnnotationBeanPostProcessor 在初始化时向里面放置了 PostConstruct
 	@Nullable
 	private Class<? extends Annotation> initAnnotationType;
 
+	// CommonAnnotationBeanPostProcessor 在初始化时向里面放置了 PreDestroy
 	@Nullable
 	private Class<? extends Annotation> destroyAnnotationType;
 

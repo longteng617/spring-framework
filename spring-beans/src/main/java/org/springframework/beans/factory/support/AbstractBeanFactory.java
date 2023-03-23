@@ -333,50 +333,71 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				if (mbd.isSingleton()) {
 					// 传递的是一个表达式或者说是一个匿名内部类 牵扯到 ObjectFactory
 					// ObjectFactory 是一个函数式接口，当调用其中的 getObject 方法的时候，才会将实际传递的匿名内部类中的实现逻辑来进行执行
+					// 返回以 beanName 的单例对象，如果尚未注册，则使用 singletonFactory 创建并注册一个对象
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
+							// 为给定的合并后 BeanDefinition（和参数） 创建一个 bean 实例
 							return createBean(beanName, mbd, args);
 						}
 						catch (BeansException ex) {
 							// Explicitly remove instance from singleton cache: It might have been put there
 							// eagerly by the creation process, to allow for circular reference resolution.
 							// Also remove any beans that received a temporary reference to the bean.
+							// 显示的从单例缓存中删除实例: 它可能是由创建过程急切的放在那里，以允许循环引用解析。还要删除
+							// 接收到该Bean 临时引用的任何Bean
+							// 销毁给定的bean 如果找到相应一次性Bean 实例，则委托给 destroyBean
 							destroySingleton(beanName);
 							throw ex;
 						}
 					});
+					// 从 beanInstance 中获取公开的 Bean 对象，主要处理 sharedInstance 和 FactoryBean 对象的情况
+					// 如果不是，FactoryBean 会直接返回 sharedInstance
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 				// 原型模式的bean对象创建
 				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
+					// 他是一个原型 -> 创建一个新的实例
+					// 定义 prototype 实例
 					Object prototypeInstance = null;
 					try {
+						// 创建 Prototype 对象前的准备工作，默认实现将 BeanName 添加到 prototypesCurrentlyInCreation 中
 						beforePrototypeCreation(beanName);
+						// 为 mbd 创建一个 bean 实例
 						prototypeInstance = createBean(beanName, mbd, args);
 					}
 					finally {
+						// 创建 Prototype 对象之后回调，默认实现将 BeanName 从 prototypesCurrentlyInCreation 移除
 						afterPrototypeCreation(beanName);
 					}
+					// 从 beanInstance 中获取公开的 Bean 对象，主要处理 beanInstance 是 FactoryBean 对象的情况，如果不是 FactoryBean 会直接返回 sharedInstance
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
 				else {
+					// 指定 scope 上实例的 Bean
 					String scopeName = mbd.getScope();
+					// 从 scopes 中获取 scopeName 对于的 Scope 对象
 					final Scope scope = this.scopes.get(scopeName);
+					// 如果 scope 对象为空
 					if (scope == null) {
 						throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
 					}
 					try {
+						// 从 scope 中获取 beanName 对应的实例对象
 						Object scopedInstance = scope.get(beanName, () -> {
+							// 创建 Prototype 对象前的准备工作，默认实现将 BeanName 添加到 prototypesCurrentlyInCreation 中
 							beforePrototypeCreation(beanName);
 							try {
+								// 创建一个 bean 实例
 								return createBean(beanName, mbd, args);
 							}
 							finally {
+								// 创建 Prototype 对象之后回调，默认实现将 BeanName 从 prototypesCurrentlyInCreation 移除
 								afterPrototypeCreation(beanName);
 							}
 						});
+						// 从 beanInstance 中获取公开的 Bean 对象，主要处理 beanInstance 是 FactoryBean 对象的情况，如果不是 FactoryBean 会直接返回 sharedInstance
 						bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
 					}
 					catch (IllegalStateException ex) {
@@ -394,8 +415,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
 		// Check if required type matches the type of the actual bean instance.
+		// 检查 requiredType 是否与实际的 Bean 实例的类型匹配
 		if (requiredType != null && !requiredType.isInstance(bean)) {
 			try {
+				// 获取此 BeanFactory 使用的类型转换器，将 bean 转换为 requiredType
 				T convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);
 				if (convertedBean == null) {
 					throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
@@ -416,11 +439,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Override
 	public boolean containsBean(String name) {
 		String beanName = transformedBeanName(name);
+		// beanName 存在于 singletonObjects【一级缓存】|| beanDefinitionMap 中存在该 beanName 的 BeanDefinition 对象
 		if (containsSingleton(beanName) || containsBeanDefinition(beanName)) {
 			return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(name));
 		}
 		// Not found -> check parent.
+		// 获取父工厂
 		BeanFactory parentBeanFactory = getParentBeanFactory();
+		// 如果父工厂不为 null 则递归形式查询该 name 是否存在于父工厂，并返回执行结果，为null 时直接返回false
+		// 经过上面步骤，已经确定当前工厂不存在该 bean 的 BeanDefinition 对象一级singleton实例
 		return (parentBeanFactory != null && parentBeanFactory.containsBean(originalBeanName(name)));
 	}
 
@@ -1590,17 +1617,25 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	@Nullable
 	protected Object evaluateBeanDefinitionString(@Nullable String value, @Nullable BeanDefinition beanDefinition) {
+		// 如果该工厂没有设置 bean 定义值中表达式的解析策略
 		if (this.beanExpressionResolver == null) {
+			// 直接返回要检查的值
 			return value;
 		}
 
+		// 值所来自的 bean 定义的当前目标作用域
 		Scope scope = null;
+		// 如果有传入值所来自的 bean 定义
 		if (beanDefinition != null) {
+			// 获取值所来自的 bran 定义的当前目标作用域
 			String scopeName = beanDefinition.getScope();
+			// 如果成功获得值所来自的 bean 定义的当前目标作用域
 			if (scopeName != null) {
+				// 获取 scopeName 对应的 Scope 对象
 				scope = getRegisteredScope(scopeName);
 			}
 		}
+		// 评估value 作为表达式（如果适用）：否则按原样返回值
 		return this.beanExpressionResolver.evaluate(value, new BeanExpressionContext(this, scope));
 	}
 
@@ -1903,20 +1938,30 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected void registerDisposableBeanIfNecessary(String beanName, Object bean, RootBeanDefinition mbd) {
 		AccessControlContext acc = (System.getSecurityManager() != null ? getAccessControlContext() : null);
+		// 如果 mbd 不是 Prototype 作用域 && bean 在关闭时需要销毁
 		if (!mbd.isPrototype() && requiresDestruction(bean, mbd)) {
+			// 如果 mbd 是单例的
 			if (mbd.isSingleton()) {
 				// Register a DisposableBean implementation that performs all destruction
 				// work for the given bean: DestructionAwareBeanPostProcessors,
 				// DisposableBean interface, custom destroy method.
+				// 注册一个一次性Bean 实现来执行给定Bean的销毁工作：DestructionAwareBeanPostProcessors 一次性 bean 接口，自定义销毁方法
+				// DisposableBeanAdapter： 实际一次性 Bean 和可运行接口适配器，对给定Bean实例执行各种销毁步骤
+				// 构建 Bean 对应的 DisposableBeanAdapter 对象，与 beanName 绑定到注册中心的一次性Bean列表中
 				registerDisposableBean(beanName,
 						new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors(), acc));
 			}
 			else {
 				// A bean with a custom scope...
+				// 具有自定义作用域的 bean
+				// 获取 mbd的作用域
 				Scope scope = this.scopes.get(mbd.getScope());
+				// 如果 作用域为 null
 				if (scope == null) {
+					// 非法状态异常
 					throw new IllegalStateException("No Scope registered for scope name '" + mbd.getScope() + "'");
 				}
+				// 注册一个回调。在销毁作用域中将构建 Bean 对应的 DisposableBeanAdapter 对象指定（或者在销毁整个作用域时执行，如果作用域没有销毁单个对象，而是全部终止）
 				scope.registerDestructionCallback(beanName,
 						new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors(), acc));
 			}

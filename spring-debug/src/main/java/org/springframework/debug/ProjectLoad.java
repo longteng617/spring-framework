@@ -2,6 +2,7 @@ package org.springframework.debug;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.debug.editor.Customer;
 import org.springframework.debug.method.overrides.FruitPlate;
 
 import java.util.Arrays;
@@ -14,19 +15,17 @@ import java.util.Arrays;
 public class ProjectLoad {
 
 	public static void main(String[] args) {
-//		ApplicationContext applicationContext = new MyClassPathXmlApplicationContext("selfEditor-${user}.xml");
-//		Person person = applicationContext.getBean(Person.class);
-//		System.out.println(person);
+		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("selfEditor-${user}.xml");
+		Customer customer = applicationContext.getBean(Customer.class);
+		System.out.println(customer);
+
+
+//		ApplicationContext ac = new ClassPathXmlApplicationContext("method-overrides.xml");
+//		FruitPlate fruitPlate = (FruitPlate) ac.getBean("fruitPlate");
+//		System.out.println(fruitPlate.getFruit());
 //
-//		User user = (User)applicationContext.getBean("fync");
-//		System.out.println(user.toString());
-
-		ApplicationContext ac = new ClassPathXmlApplicationContext("method-overrides.xml");
-		FruitPlate fruitPlate = (FruitPlate) ac.getBean("fruitPlate");
-		System.out.println(fruitPlate.getFruit());
-
-		FruitPlate fruitPlate2 = (FruitPlate) ac.getBean("fruitPlate");
-		System.out.println(fruitPlate2.getFruit());
+//		FruitPlate fruitPlate2 = (FruitPlate) ac.getBean("fruitPlate");
+//		System.out.println(fruitPlate2.getFruit());
 
 
 //		ApplicationContext ac = new ClassPathXmlApplicationContext("applicationContext.xml");

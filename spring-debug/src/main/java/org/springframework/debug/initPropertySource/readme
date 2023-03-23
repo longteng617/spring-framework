@@ -1,0 +1,15 @@
+initPropertySources扩展功能说明
+initPropertySources方法符合Spring的开放式结构设计，给用户增加扩展Spring的能力。用户可以根据自身的需要重写initPropertySource方法，并在方法中进行个性化设计及其业务处理。
+如：获取系统属性或者系统环境变量里面的值，也可以设置系统属性和系统环境变量中某个值必填，若不存在，会直接停止服务。
+getEnvironment().validateRequiredProperties()中，validateRequiredProperties则是对属性进行验证。
+
+举例说明：
+需求：在项目运行过程中想通过系统环境变量中取得定义的某个值或者系统中的值操作
+可通过实现initPropertySources扩展接口实现。代码见 org.springframework.debug.initPropertySource.MyClassPathXmlApplicationContext
+
+
+
+customizeBeanFactory 扩展功能说明
+这个方法主要设置了两个属性 allowBeanDefinitionOverriding（是否允许覆盖同名称的不同定义的对象）、allowCircularReferences（是否允许bean之间的循环依赖）
+
+如果需要改这两个值  代码见 org.springframework.debug.initPropertySource.MyClassPathXmlApplicationContext

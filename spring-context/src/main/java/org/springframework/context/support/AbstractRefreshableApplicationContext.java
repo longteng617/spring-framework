@@ -129,13 +129,13 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			closeBeanFactory();
 		}
 		try {
-			// 初始化一个 DefaultListableBeanFactory
+			// 初始化一个 DefaultListableBeanFactory 里面主要设置了允许循环依赖、可以覆盖以及忽视一些aware接口(BeanNameAware、BeanClassLoaderAware、BeanFactoryAware)。
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			// 用于 BeanFactory 的序列化，设置ID,在ClassPathXmlApplicationContext 的父类 AbstractApplicationContext 生成的
 			beanFactory.setSerializationId(getId());
-			// 设置 BeanFactory 的两个配置属性：是否允许 Bean 覆盖、是否允许循环引用
+			// 设置 BeanFactory 的两个配置属性：是否允许 Bean 覆盖、是否允许循环引用 (扩展点)
 			customizeBeanFactory(beanFactory);
-			// 初始化 DocumentReader 解析XML 加载 Bean 到 BeanFactory 中
+			// 初始化 DocumentReader 解析XML 成 Document ,解析 document 的每个元素并设置到 BeanDefinition 到 BeanFactory 中
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;

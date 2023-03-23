@@ -82,7 +82,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	@Override
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
 		// Create a new XmlBeanDefinitionReader for the given BeanFactory.
-		// 给这个 BeanFactory 实例化一个 XmlBeanDefinitionReader
+		// 给这个 BeanFactory 实例化一个 XmlBeanDefinitionReader 用于解析 XML
 		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
 
 		// Configure the bean definition reader with this context's
@@ -90,13 +90,17 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		// 给 reader 设置环境变量
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
 		beanDefinitionReader.setResourceLoader(this);
+		/**
+		 * 我们访问xml文件时，都有它的格式规定，一般为xsd或者dtd，我们都会在xml文件上面定义一些网址，意思是xsd文件从这个网址上找。
+		 * 但是一般情况下，网址是不可访问的，这个时候，需要读取本地的dtd、xsd了，这个方法就是这个用途。现在一般都用xsd了。
+		 */
 		// 设置要用于解析的 SAX 实体解析器。
 		// ResourceEntityResolver 会设置 路径 META-INF/spring.schemas
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
-		// 初始化 BeanDefinitionReader，其实这个是提供给子类覆写的，暂时没有子类覆写 是否检验xml的验证默认是true
+		// 初始化 BeanDefinitionReader，其实这个是提供给子类覆写的，暂时没有子类覆写 检验xml的验证，默认是true
 		initBeanDefinitionReader(beanDefinitionReader);
 		loadBeanDefinitions(beanDefinitionReader);
 	}
